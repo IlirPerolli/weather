@@ -25,21 +25,24 @@ const getLocation = function () {
     navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 };
-const currentPos = getLocation()
-  .then(pos => {
-    const { latitude: lat, longitude: lng } = pos.coords;
-    return [lat, lng];
-  })
-  .then(data => {
-    getWeather(data[0], data[1]);
-  })
-  .catch(err => {
-    renderErrorMessage('Ju lutem lejoni marrjen e lokacionit.');
-  })
-  .finally(() => {
-    loader.classList.add('hidden');
-    weatherSection.classList.remove('hidden');
-  });
+
+const checkWeather = function () {
+  const currentPos = getLocation()
+    .then(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      return [lat, lng];
+    })
+    .then(data => {
+      getWeather(data[0], data[1]);
+    })
+    .catch(err => {
+      renderErrorMessage('Ju lutem lejoni marrjen e lokacionit.');
+    })
+    .finally(() => {
+      loader.classList.add('hidden');
+      weatherSection.classList.remove('hidden');
+    });
+};
 
 const timeout = function (seconds) {
   return new Promise(function (_, reject) {
@@ -91,3 +94,4 @@ const renderErrorMessage = function (message) {
   errorMessage.textContent = message;
   document.querySelector('#weather-icons').classList.add('hidden');
 };
+checkWeather();
