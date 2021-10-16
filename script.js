@@ -49,7 +49,7 @@ const checkWeather = function () {
 const timeout = function (seconds) {
   return new Promise(function (_, reject) {
     setTimeout(function () {
-      reject(new Error('Request took too long!'));
+      reject(new Error('Kërkesa zgjati shumë!'));
     }, seconds * 1000);
   });
 };
