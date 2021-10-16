@@ -11,6 +11,7 @@ const highestTemperature = document.querySelector('#highest-temperature');
 const loader = document.querySelector('#loader-container');
 const weatherSection = document.querySelector('#weather-section');
 const errorMessage = document.querySelector('#error-message');
+
 const weatherIcons = {
   rain: 'https://www.svgrepo.com/show/43707/rain.svg',
   sun: 'https://www.svgrepo.com/show/30310/sun.svg',
@@ -20,6 +21,7 @@ const weatherIcons = {
   clear: 'https://www.svgrepo.com/show/16561/moon.svg',
   clouds: 'https://www.svgrepo.com/show/97652/clouds.svg',
 };
+
 const getLocation = function () {
   return new Promise(function (resolve, reject) {
     navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -52,7 +54,7 @@ const timeout = function (seconds) {
   });
 };
 
-const getJSON = async function (url, errorMsg = 'Something went wrong') {
+const getJSON = async function (url, errorMsg = 'Diçka shkoi keq.') {
   const location = await fetch(url);
   console.log(url);
   const weatherData = await location.json();
