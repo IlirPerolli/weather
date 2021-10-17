@@ -11,7 +11,13 @@ const highestTemperature = document.querySelector('#highest-temperature');
 const loader = document.querySelector('#loader-container');
 const weatherSection = document.querySelector('#weather-section');
 const errorMessage = document.querySelector('#error-message');
-
+const street = document.querySelector('#staddress');
+let region,
+  staddress = '';
+if (sessionStorage.region && sessionStorage.staddress) {
+  region = sessionStorage.getItem('region');
+  staddress = sessionStorage.getItem('staddress');
+}
 const weatherIcons = {
   rain: 'https://www.svgrepo.com/show/43707/rain.svg',
   sun: 'https://www.svgrepo.com/show/30310/sun.svg',
@@ -55,20 +61,35 @@ const timeout = function (seconds) {
 };
 
 const getJSON = async function (url, errorMsg = 'Diçka shkoi keq.') {
-  const location = await fetch(url);
-  console.log(url);
-  const weatherData = await location.json();
-  if (weatherData.cod != 200)
-    throw new Error(`${errorMsg} (${weatherData.message})`);
-  return weatherData;
+  const request = await fetch(url);
+  const data = await request.json();
+  if (data.cod != 200) throw new Error(`${errorMsg} (${data.message})`);
+  return data;
+};
+
+const getLocationJSON = async function (url) {
+  const request = await fetch(url);
+  const data = await request.json();
+  return data;
 };
 const getWeather = async function (lat, lng) {
   try {
+    const locationData = await getLocationJSON(
+      `https://geocode.xyz/${lat},${lng}?geoit=json`
+    );
+
+    if (locationData.region) {
+      region = locationData.region;
+      staddress = locationData.staddress;
+      sessionStorage.setItem('region', region);
+      sessionStorage.setItem('staddress', staddress);
+    }
+
     const weatherData = await Promise.race([
       getJSON(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&lang=sq&appid=7ee529f770938cd5c447f1876fb0bb0f`
       ),
-      timeout(3),
+      timeout(5),
     ]);
 
     renderWeather(weatherData);
@@ -78,16 +99,23 @@ const getWeather = async function (lat, lng) {
 };
 
 const renderWeather = function (data) {
-  temp.textContent = `${Math.round(data.main.temp)} °C`;
+  temp.textContent = `${Math.round(data.main.temp)}°C`;
   description.textContent = data.weather[0].description;
   wind.textContent = `${data.wind.speed} km/h`;
-  city.textContent = data.name;
+  if (sessionStorage.region && sessionStorage.staddress) {
+    city.textContent = sessionStorage.getItem('region');
+    street.textContent = sessionStorage.getItem('staddress');
+    // staddress = sessionStorage.getItem('staddress');
+  } else {
+    city.textContent = data.name;
+  }
+
   const date = new Date();
   time.textContent = `${String(date.getHours()).padStart(2, 0)}:${String(
     date.getMinutes()
   ).padStart(2, 0)} `;
   humidity.textContent = `${data.main.humidity}%`;
-  highestTemperature.textContent = `${Math.round(data.main.temp)} °C`;
+  highestTemperature.textContent = `${Math.round(data.main.temp)}°C`;
   const weatherType = data.weather[0].main.toLowerCase();
   weatherImg.src = weatherIcons[weatherType];
   weatherImg.classList.remove('hidden');
@@ -97,3 +125,5 @@ const renderErrorMessage = function (message) {
   document.querySelector('#weather-icons').classList.add('hidden');
 };
 checkWeather();
+
+//
